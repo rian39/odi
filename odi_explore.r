@@ -66,8 +66,8 @@ odi_words  <- odi %>%
     unnest_tokens(word, dataset_title) %>% 
     mutate(word = str_extract(word, "[a-zA-Z']+")) %>% 
     anti_join(stop_words)
-
 odi_words
+
 #                    publisher      word
 # 1      Food Standards Agency  chickens
 # 2      Food Standards Agency  helpline
@@ -88,6 +88,29 @@ odi_words %>% count(word, sort=TRUE) %>%
     geom_col() + 
     xlab(NULL) + 
     coord_flip()
+
+## word combinations in dataset titles
+
+title_bigrams  <-  odi %>% select(publisher, dataset_title) %>%
+    unnest_tokens(bigram, dataset_title,  token='ngrams', n =2 )
+title_bigrams 
+
+title_bigrams %>% count(bigram, sort = TRUE)
+
+title_bigrams_separated  <-  title_bigrams %>%
+    separate(bigram, c('word1', 'word2'), sep=' ')
+
+bigrams_filtered <- title_bigrams_separated %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+bigrams_filtered
+
+bigram_count  <-  bigrams_filtered %>% count(word1, word2, sort = TRUE)
+bigram_count 
+
+bigrams_united  <-  bigrams_filtered %>%
+    unite(bigram, word1, word2, sep = ' ')
+bigrams_united 
 
 ## publisher analysis 
 
